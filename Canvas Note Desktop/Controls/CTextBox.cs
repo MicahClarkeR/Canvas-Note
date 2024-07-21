@@ -31,7 +31,11 @@ namespace Canvas_Note_Desktop.Controls
             if (Keyboard.FocusedElement != this)
             {
                 Keyboard.Focus(this);
+            }
 
+            // Set caret index to mouse click location.
+            if (e.ChangedButton == MouseButton.Left)
+            {
                 Point mousePosition = e.GetPosition(this);
                 int charIndex = GetCharacterIndexFromPoint(mousePosition);
                 CaretIndex = charIndex;
