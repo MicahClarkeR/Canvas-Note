@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Canvas Note Desktop", "Canvas Note Desktop\Canvas Note Desktop.csproj", "{DF2CD48A-F140-479C-868A-AB921930D94B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF2CD48A-F140-479C-868A-AB921930D94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF2CD48A-F140-479C-868A-AB921930D94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF2CD48A-F140-479C-868A-AB921930D94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF2CD48A-F140-479C-868A-AB921930D94B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {408D5F72-02D5-4FD0-90A8-625E3A697C66}
+	EndGlobalSection
+EndGlobal
