@@ -364,11 +364,6 @@ namespace Canvas_Note_Desktop
             ControlFactory.CreateTextbox(MainCanvas, "Text", new Point(ActualWidth / 2, ActualHeight / 2), focus: true);
         }
 
-        private void CreateProduct_Click(object sender, RoutedEventArgs e)
-        {
-            ControlFactory.CreateProductWithDialog(MainCanvas, Mouse.GetPosition(MainCanvas));
-        }
-
         #endregion Create Callbacks
 
 
