@@ -77,11 +77,11 @@ namespace Canvas_Note_Desktop
 
             // Just draw a circle at each corner.
             drawingContext.DrawRectangle(renderBrush, renderPen, adornedElementRect);
-            drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopLeft, renderRadius, renderRadius);
+           /* drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopLeft, renderRadius, renderRadius);
             drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.TopRight, renderRadius, renderRadius);
             drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.BottomLeft, renderRadius, renderRadius);
             drawingContext.DrawEllipse(renderBrush, renderPen, adornedElementRect.BottomRight, renderRadius,
-                renderRadius);
+                renderRadius);*/
         }
 
         protected override Size MeasureOverride(Size constraint)
