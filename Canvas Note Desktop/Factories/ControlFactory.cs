@@ -9,7 +9,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Point = System.Windows.Point;
-using Canvas_Note_Desktop.Dialogs;
 using Canvas_Note_Desktop.Save;
 
 namespace Canvas_Note_Desktop.Factories
@@ -74,39 +73,6 @@ namespace Canvas_Note_Desktop.Factories
         {
             BitmapSource imageSource = new BitmapImage(new Uri(file));
             return CreateImage(canvas, imageSource, position);
-        }
-
-        public static CProduct CreateProduct(Canvas canvas, BitmapSource source, string text)
-        {
-            CProduct product = new CProduct();
-            product.SetBitmapSource(source);
-            product.SetText(text);
-
-            return product;
-        }
-
-        public static CProduct? CreateProductWithDialog(Canvas canvas, Point? position = null)
-        {
-            ProductDialog dialog = new ProductDialog();
-            dialog.ShowDialog();
-
-            if(dialog.Successful)
-            {
-                BitmapSource imageSource = new BitmapImage(new Uri(dialog.Image));
-                CProduct product = new CProduct(canvas);
-                product.SetBitmapSource(imageSource);
-                product.SetText(dialog.Text);
-
-                position ??= Mouse.GetPosition(canvas);
-
-                canvas.Children.Add(product);
-                Canvas.SetLeft(product, position.Value.X);
-                Canvas.SetTop(product, position.Value.Y);
-
-                return product;
-            }
-
-            return null;
         }
     }
 }
