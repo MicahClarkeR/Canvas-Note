@@ -1,4 +1,5 @@
 ﻿using Canvas_Note_Desktop.Controls;
+using Canvas_Note_Desktop.Factories;
 using Canvas_Note_Desktop.Save;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -14,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Formats.Asn1.AsnWriter;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Canvas_Note_Desktop
 {
@@ -69,44 +72,6 @@ namespace Canvas_Note_Desktop
 
         #region Private Methods
 
-        private void AddImage(BitmapSource source, double x, double y)
-        {
-            Image image = new CImage()
-            {
-                Source = source,
-                Width = source.Width,
-                Height = source.Height
-            };
-
-            MainCanvas.Children.Add(image);
-            Canvas.SetLeft(image, x - (source.Width / 2));
-            Canvas.SetTop(image, y - (source.Height / 2));
-        }
-
-        private void AddImageFromFile(string file, double x, double y)
-        {
-            BitmapSource imageSource = new BitmapImage(new Uri(file));
-            AddImage(imageSource, x, y);
-        }
-
-        private CTextBox AddTextBox(Point? position = null, string? text = null)
-        {
-            Point dropPosition = position ?? Mouse.GetPosition(MainCanvas);
-            text ??= "Text";
-            CTextBox textBox = new CTextBox()
-            {
-                Text = text.Trim(),
-                ContextMenu = null,
-                AcceptsReturn = true
-            };
-
-            MainCanvas.Children.Add(textBox);
-            Canvas.SetLeft(textBox, dropPosition.X);
-            Canvas.SetTop(textBox, dropPosition.Y);
-
-            return textBox;
-        }
-
         private void ClipboardPaste(Point position)
         {
             if (Clipboard.ContainsText())
@@ -116,13 +81,12 @@ namespace Canvas_Note_Desktop
 
                 string text = Clipboard.GetText();
 
-                AddTextBox(position, text);
+                ControlFactory.CreateTextbox(MainCanvas, text, position, focus: true);
             }
             else if (Clipboard.ContainsImage())
             {
                 BitmapSource source = Clipboard.GetImage();
-
-                AddImage(source, position.X, position.Y);
+                ControlFactory.CreateImage(MainCanvas, source, position);
             }
         }
 
@@ -198,23 +162,9 @@ namespace Canvas_Note_Desktop
             _startMmbPoint = e.GetPosition(MainCanvas);
         }
 
-        private void HandleShiftLeftDoubleClick(MouseButtonEventArgs e)
-        {
-            CTextBox textBox = AddTextBox(e.GetPosition(MainCanvas), "Text");
-            textBox.Focus();
-        }
-
         private async void LoadButton_MouseLeftButtonUp(object sender, EventArgs e)
         {
-            await Dispatcher.InvokeAsync(() =>
-            {
-                _filePath = CanvasState.LoadCanvas(MainCanvas);
-
-                if (_filePath == null || _filePath == string.Empty)
-                    return;
-
-                Title = $"{System.IO.Path.GetFileName(_filePath)} — Canvas Note";
-            });
+            LoadFile();
         }
 
         private void MainCanvas_DragEnter(object sender, DragEventArgs e)
@@ -248,19 +198,19 @@ namespace Canvas_Note_Desktop
             {
                 string[] file = (string[])e.Data.GetData(DataFormats.FileDrop);
                 var position = e.GetPosition(MainCanvas);
-                AddImageFromFile(file[0], position.X, position.Y);
+                ControlFactory.CreateImageFromFile(MainCanvas, file[0], position);
             }
             else if (e.Data.GetDataPresent(DataFormats.Text))
             {
                 string text = (string)e.Data.GetData(DataFormats.Text);
                 var position = e.GetPosition(MainCanvas);
-                AddTextBox(position, text);
+                ControlFactory.CreateTextbox(MainCanvas, text, position, focus: true);
             }
         }
 
         private void MainCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.Modifiers != ModifierKeys.Control)
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.Modifiers != ModifierKeys.Control || !KeyboardDetector.IsFocused)
             {
                 return;
             }
@@ -285,10 +235,6 @@ namespace Canvas_Note_Desktop
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 HandleMiddleMouseButtonDown(e);
-            }
-            else if (Keyboard.IsKeyDown(Key.LeftShift) && e.LeftButton == MouseButtonState.Pressed && e.ClickCount == 2)
-            {
-                HandleShiftLeftDoubleClick(e);
             }
             else if (e.ChangedButton == MouseButton.Left && e.ClickCount == 1)
             {
@@ -373,7 +319,7 @@ namespace Canvas_Note_Desktop
 
         private UIElement GetTopLevelUIElement(DependencyObject visualHit)
         {
-            while (visualHit != null && (visualHit is not CTextBox && visualHit is not CImage))
+            while (visualHit != null && (visualHit is not CTextBox && visualHit is not CImage && visualHit is not Canvas))
             {
                 visualHit = VisualTreeHelper.GetParent(visualHit);
             }
@@ -399,6 +345,44 @@ namespace Canvas_Note_Desktop
                     ClipboardPaste(Mouse.GetPosition(MainCanvas));
                 }
             }
+        }
+
+        private void MainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            HitTestResult hitTestResult = VisualTreeHelper.HitTest(MainCanvas, Mouse.GetPosition(MainCanvas));
+
+            if (hitTestResult == null || hitTestResult.VisualHit == MainCanvas)
+            {
+                KeyboardTextbox.Focus();
+            }
+        }
+
+        #region Create Callbacks
+
+        private void CreateTextBox_Click(object sender, RoutedEventArgs e)
+        {
+            ControlFactory.CreateTextbox(MainCanvas, "Text", new Point(ActualWidth / 2, ActualHeight / 2), focus: true);
+        }
+
+        private void CreateProduct_Click(object sender, RoutedEventArgs e)
+        {
+            ControlFactory.CreateProductWithDialog(MainCanvas, Mouse.GetPosition(MainCanvas));
+        }
+
+        #endregion Create Callbacks
+
+
+        public void LoadFile(string? filepath = null)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                _filePath = CanvasState.LoadCanvas(MainCanvas, filepath);
+
+                if (_filePath == null || _filePath == string.Empty)
+                    return;
+
+                Title = $"{System.IO.Path.GetFileName(_filePath)} — Canvas Note";
+            });
         }
 
         #endregion Private Methods

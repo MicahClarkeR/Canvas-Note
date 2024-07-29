@@ -5,22 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Canvas_Note_Desktop"
         mc:Ignorable="d"
-        Title="Canvas Note" Height="450" Width="800"
+        Title="Canvas Note"
         WindowStartupLocation="CenterScreen" Background="#FFEAEAEA">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="757*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="15"/>
         </Grid.RowDefinitions>
-        <ToolBar Height="25" Grid.Row="0" ToolBarTray.IsLocked="True" Panel.ZIndex="1000">
+        <ToolBar Height="25" Grid.Row="0" ToolBarTray.IsLocked="True" Panel.ZIndex="1000" Grid.ColumnSpan="2">
             <Button x:Name="NewButton" Content="New" HorizontalAlignment="Left" VerticalAlignment="Top" Click="NewButton_Click"/>
             <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SaveButton_Click"/>
             <Button x:Name="SaveAsButton" Content="Save As" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SaveAsButton_Click"/>
             <Button x:Name="LoadButton" Content="Load" HorizontalAlignment="Left" VerticalAlignment="Top" Click="LoadButton_MouseLeftButtonUp"/>
         </ToolBar>
         <Viewbox x:Name="CanvasView"
-            Grid.Row="1" Stretch="None" Focusable="True">
+            Grid.Row="1" Stretch="None" Focusable="True" Grid.Column="2">
 
             <Canvas x:Name="MainCanvas" AllowDrop="True"
                 Focusable="True"
@@ -32,15 +36,19 @@
                 PreviewMouseDown="MainCanvas_PreviewMouseDown"
                 MouseWheel="MainCanvas_MouseWheel"
                 PreviewKeyUp="MainCanvas_PreviewKeyUp"
+                MouseUp="MainCanvas_MouseUp"
                 Background="White"
                 Width="1000000"
-                Height="1000000">
-            </Canvas>
+                Height="1000000"/>
         </Viewbox>
-        <ToolBarPanel Grid.Row="2" Margin="0,0,0,0">
+        <ToolBarPanel Grid.Row="2" Margin="0,0,0,0" Grid.Column="2">
             <Label x:Name="LabelZoom" Content="Zoom: 1.0" Panel.ZIndex="100" HorizontalContentAlignment="Right" FontFamily="Consolas" Padding="1,1,1,1"/>
         </ToolBarPanel>
-        <TextBox x:Name="KeyboardTextbox" TextWrapping="Wrap" Text="" Width="120" HorizontalAlignment="Right" Margin="0,0,-120,0"  PreviewKeyDown="KeyboardTextbox_PreviewKeyDown" IsReadOnlyCaretVisible="True"/>
+        <TextBox x:Name="KeyboardTextbox" TextWrapping="Wrap" Text="" Width="120" HorizontalAlignment="Left" Margin="757,0,0,0"  PreviewKeyDown="KeyboardTextbox_PreviewKeyDown" IsReadOnlyCaretVisible="True" Grid.Column="1"/>
+        <StackPanel Grid.Row="1">
+            <Button x:Name="CreateTextBox" Content="Textbox" Click="CreateTextBox_Click"/>
+            <!--<Button x:Name="CreateProduct" Content="Product" Click="CreateProduct_Click"/>-->
+        </StackPanel>
 
     </Grid>
 </Window>

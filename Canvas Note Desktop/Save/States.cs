@@ -1,4 +1,5 @@
 ﻿using Canvas_Note_Desktop.Controls;
+using Canvas_Note_Desktop.Factories;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -24,7 +26,7 @@ namespace Canvas_Note_Desktop.Save
 
             foreach (var child in canvas.Children)
             {
-                if (child is Image image)
+                if (child is CImage image)
                 {
                     var bitmapImage = image.Source;
                     string? base64Image = ConvertBitmapImageToBase64(bitmapImage);
@@ -43,15 +45,18 @@ namespace Canvas_Note_Desktop.Save
                     };
                     canvasState.Images.Add(imageState);
                 }
-                else if (child is TextBox textBox)
+                else if (child is CTextBox textBox)
                 {
                     var textBoxState = new TextBoxState
                     {
                         Text = ConvertStringToBase64(textBox.Text),
                         Left = Canvas.GetLeft(textBox),
                         Top = Canvas.GetTop(textBox),
+                        Width = textBox.ActualWidth,
+                        Height = textBox.ActualHeight,
                         FontSize = textBox.FontSize,
-                        Index = canvas.Children.IndexOf((System.Windows.UIElement)child)
+                        Index = canvas.Children.IndexOf((System.Windows.UIElement)child),
+                        Alignment = textBox.TextAlignment
                     };
                     canvasState.TextBoxes.Add(textBoxState);
                 }
@@ -142,17 +147,10 @@ namespace Canvas_Note_Desktop.Save
                 canvas.Children.Insert(Math.Max(Math.Min(imageState.Index, canvas.Children.Count - 1), 0), image);
             }
 
-            foreach (var textBoxState in canvasState.TextBoxes)
+            foreach (var state in canvasState.TextBoxes)
             {
-                var textBox = new CTextBox
-                {
-                    Text = ConvertBase64ToString(textBoxState.Text),
-                    FontSize = (textBoxState.FontSize > 0) ? textBoxState.FontSize : 12
-                };
-
-                Canvas.SetLeft(textBox, textBoxState.Left);
-                Canvas.SetTop(textBox, textBoxState.Top);
-                canvas.Children.Insert(Math.Max(Math.Min(textBoxState.Index, canvas.Children.Count - 1), 0), textBox);
+                int index = Math.Max(Math.Min(state.Index, canvas.Children.Count - 1), 0);
+                ControlFactory.CreateTextbox(canvas, ConvertBase64ToString(state.Text), new Point(state.Left, state.Top), state.Width, state.FontSize, false, index);
             }
 
             return filePath;
@@ -204,6 +202,7 @@ namespace Canvas_Note_Desktop.Save
         public double Top { get; set; }
         public double FontSize { get; set; }
         public int Index { get; set; } = 0;
+        public TextAlignment Alignment { get; set; } = TextAlignment.Center;
     }
 
 }
